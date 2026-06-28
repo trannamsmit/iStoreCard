@@ -5,6 +5,11 @@ import api from '../api';
 import bgImage from '../img/photo-1586528116311-ad8dd3c8310d.avif';
 import appLogo from '../img/logo.png';
 
+// Phát hiện đang chạy trong APK (Capacitor) hay web browser
+const isCapacitorApp = () => {
+  return window.Capacitor !== undefined || window.location.protocol === 'capacitor:';
+};
+
 // Lấy IP:Port hiện tại từ serverUrl đã lưu
 const getCurrentServerDisplay = () => {
   try {
@@ -200,48 +205,59 @@ function Login() {
           </button>
         </form>
 
-        {/* Chip hiển thị IP hiện tại — bấm vào để sửa */}
-        <div
-          className="server-chip"
-          onClick={() => { setShowServerEdit(!showServerEdit); setConnStatus(null); setServerInput(getCurrentServerDisplay()); }}
-          title="Bấm để thay đổi IP Server"
-        >
-          <span className="dot"></span>
-          <span>🌐 {getCurrentServerDisplay()}</span>
-          <span style={{ fontSize: '10px', opacity: 0.6 }}>{showServerEdit ? '▲' : '▼'}</span>
-        </div>
-        {showServerEdit && (
-          <div className="server-edit-panel">
-            <label>Địa chỉ IP Server (IP:Port)</label>
-            <input
-              type="text"
-              className="server-edit-input"
-              value={serverInput}
-              onChange={e => { setServerInput(e.target.value); setConnStatus(null); }}
-              placeholder="172.26.9.22:5050"
-              inputMode="numeric"
-            />
-
-            {/* Kết quả kiểm tra */}
-            {connStatus === 'ok' && (
-              <div style={{ color: '#4ade80', fontSize: '13px', marginBottom: '8px' }}>✅ Kết nối thành công!</div>
-            )}
-            {connStatus === 'error' && (
-              <div style={{ color: '#f87171', fontSize: '13px', marginBottom: '8px' }}>❌ Không kết nối được. Kiểm tra lại IP.</div>
-            )}
-
-            <div className="server-btn-row">
-              <button className="server-btn server-btn-test" onClick={handleTestConn} disabled={testingConn}>
-                {testingConn ? '...' : '🔍 Test'}
-              </button>
-              <button className="server-btn server-btn-save" onClick={handleSaveServer}>
-                💾 Lưu
-              </button>
-              <button className="server-btn server-btn-cancel" onClick={() => { setShowServerEdit(false); setConnStatus(null); }}>
-                Hủy
-              </button>
+        {/* Chip IP server — chỉ hiện trong APK Android */}
+        {isCapacitorApp() && (
+          <>
+            <div
+              className="server-chip"
+              onClick={() => { setShowServerEdit(!showServerEdit); setConnStatus(null); setServerInput(getCurrentServerDisplay()); }}
+              title="Bấm để thay đổi IP Server"
+            >
+              <span className="dot"></span>
+              <span>🌐 {getCurrentServerDisplay()}</span>
+              <span style={{ fontSize: '10px', opacity: 0.6 }}>{showServerEdit ? '▲' : '▼'}</span>
             </div>
-          </div>
+            {showServerEdit && (
+              <div className="server-edit-panel">
+                <label>Địa chỉ IP Server (IP:Port)</label>
+                <input
+                  type="text"
+                  className="server-edit-input"
+                  value={serverInput}
+                  onChange={e => { setServerInput(e.target.value); setConnStatus(null); }}
+                  placeholder="172.26.9.22:5050"
+                  inputMode="numeric"
+                />
+                {connStatus === 'ok' && (
+                  <div style={{ color: '#4ade80', fontSize: '13px', marginBottom: '8px' }}>✅ Kết nối thành công!</div>
+                )}
+                {connStatus === 'error' && (
+                  <div style={{ color: '#f87171', fontSize: '13px', marginBottom: '8px' }}>❌ Không kết nối được. Kiểm tra lại IP.</div>
+                )}
+                <div className="server-btn-row">
+                  <button className="server-btn server-btn-test" onClick={handleTestConn} disabled={testingConn}>
+                    {testingConn ? '...' : '🔍 Test'}
+                  </button>
+                  <button className="server-btn server-btn-save" onClick={handleSaveServer}>
+                    💾 Lưu
+                  </button>
+                  <button className="server-btn server-btn-cancel" onClick={() => { setShowServerEdit(false); setConnStatus(null); }}>
+                    Hủy
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Nút tải APK — chỉ hiện trên web browser, ẩn trong APK */}
+        {!isCapacitorApp() && (
+          <a
+            href={`${(localStorage.getItem('serverUrl') || 'http://172.26.9.22:5050/api').replace('/api', '')}/app.apk`}
+            style={{ display: 'block', marginTop: '20px', color: '#a5b4fc', textDecoration: 'none', fontSize: '14px' }}
+          >
+            📱 Tải App Android
+          </a>
         )}
       </div>
     </div>
