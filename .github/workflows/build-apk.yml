@@ -73,19 +73,42 @@ jobs:
         working-directory: client
         run: npx cap sync android
 
-      # ── 11. Tạo local.properties cho Android SDK ──────────────────
+      # ── 11. Cho phép HTTP cleartext trong mạng LAN (Android 9+) ───
+      - name: Patch network security config for HTTP LAN
+        working-directory: client/android
+        run: |
+          RES_DIR="app/src/main/res/xml"
+          mkdir -p "$RES_DIR"
+          cat > "$RES_DIR/network_security_config.xml" << 'EOF'
+          <?xml version="1.0" encoding="utf-8"?>
+          <network-security-config>
+            <base-config cleartextTrafficPermitted="true">
+              <trust-anchors>
+                <certificates src="system" />
+              </trust-anchors>
+            </base-config>
+          </network-security-config>
+          EOF
+          # Thêm networkSecurityConfig vào AndroidManifest.xml nếu chưa có
+          MANIFEST="app/src/main/AndroidManifest.xml"
+          if ! grep -q "networkSecurityConfig" "$MANIFEST"; then
+            sed -i 's/<application/<application android:networkSecurityConfig="@xml\/network_security_config"/' "$MANIFEST"
+          fi
+          echo "✅ Network security config patched"
+
+      # ── 12. Tạo local.properties cho Android SDK ──────────────────
       - name: Create local.properties
         working-directory: client/android
         run: echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
 
-      # ── 12. Build APK Debug ────────────────────────────────────────
+      # ── 13. Build APK Debug ────────────────────────────────────────
       - name: Build APK (Debug)
         working-directory: client/android
         run: |
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
 
-      # ── 13. Upload APK artifact ────────────────────────────────────
+      # ── 14. Upload APK artifact ────────────────────────────────────
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
@@ -93,9 +116,8 @@ jobs:
           path: client/android/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 30
 
-      # ── 14. Hiển thị thông tin APK đã build ──────────────────────
+      # ── 15. Hiển thị thông tin APK đã build ──────────────────────
       - name: APK build summary
         run: |
           echo "✅ APK build thành công!"
-          echo "📦 Tải APK tại: Actions → workflow run này → Artifacts → iStoreCard-v${{ github.run_number }}"
           ls -lh client/android/app/build/outputs/apk/debug/
