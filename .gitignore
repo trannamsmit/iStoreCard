@@ -17,6 +17,9 @@ client/.env
 # Backup files
 server/backup/*.json
 
+# APK file (đặt thủ công, không commit)
+*.apk
+
 # OS
 .DS_Store
 Thumbs.db

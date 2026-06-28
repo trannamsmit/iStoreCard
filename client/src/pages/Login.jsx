@@ -253,7 +253,7 @@ function Login() {
         {/* Nút tải APK — chỉ hiện trên web browser, ẩn trong APK */}
         {!isCapacitorApp() && (
           <a
-            href={`${(localStorage.getItem('serverUrl') || 'http://172.26.9.22:5050/api').replace('/api', '')}/app.apk`}
+            href={`${(import.meta.env.VITE_API_URL || 'http://172.26.9.22:5050/api').replace('/api', '')}/app.apk`}
             style={{ display: 'block', marginTop: '20px', color: '#a5b4fc', textDecoration: 'none', fontSize: '14px' }}
           >
             📱 Tải App Android
