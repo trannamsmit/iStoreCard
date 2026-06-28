@@ -1,0 +1,2 @@
+rootProject.name = 'iStoreCard'
+include ':app'

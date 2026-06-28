@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Build output
+client/dist/
+
+# Android folder (Capacitor tự tạo lại khi build)
+# Bỏ comment dòng dưới nếu muốn commit android/ lên GitHub
+# client/android/
+
+# Environment files (KHÔNG commit lên GitHub)
+server/.env
+client/.env
+
+# Backup files
+server/backup/*.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+*.swp

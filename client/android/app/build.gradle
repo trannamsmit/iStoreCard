@@ -1,0 +1,53 @@
+// File: d:\Public\iStoreCard\client\android\app\build.gradle
+
+apply plugin: "com.android.application"
+
+import com.android.build.api.variant.ApplicationVariant
+import com.android.build.gradle.internal.cxx.configure.createNativeBuildTasksForIde
+import java.util.function.Consumer
+
+// This line is important, it applies React Native configurations
+apply from: "../../../node_modules/react-native/react.gradle"
+
+android {
+    ndkVersion "25.1.8937393" // A common version, should work with your Android Studio
+    compileSdkVersion 34
+    namespace "com.istorecard"
+
+    defaultConfig {
+        applicationId "com.istorecard"
+        minSdkVersion 21
+        targetSdkVersion 34
+        versionCode 1
+        versionName "1.0"
+    }
+
+    // This is the signing configuration from Step 3
+    signingConfigs {
+        release {
+            if (project.hasProperty('MYAPP_RELEASE_STORE_FILE')) {
+                storeFile file(MYAPP_RELEASE_STORE_FILE)
+                storePassword MYAPP_RELEASE_STORE_PASSWORD
+                keyAlias MYAPP_RELEASE_KEY_ALIAS
+                keyPassword MYAPP_RELEASE_KEY_PASSWORD
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            // This line links the release build to your signing key
+            signingConfig signingConfigs.release
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+        }
+    }
+}
+
+dependencies {
+    // The version of react-native is set by the React Native Gradle Plugin
+    implementation "com.facebook.react:react-native:+"
+}
+
+// This line automatically links other native modules
+apply from: file("../../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)

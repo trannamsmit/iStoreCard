@@ -1,0 +1,11 @@
+{
+  "appId": "com.istorecard.app",
+  "appName": "iStoreCard",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "http",
+    "cleartext": true,
+    "allowNavigation": ["*"]
+  },
+  "bundledWebRuntime": false
+}

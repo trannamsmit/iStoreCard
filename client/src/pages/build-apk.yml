@@ -1,0 +1,49 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch: # Cho phép bạn bấm nút chạy thủ công trên giao diện GitHub
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Lấy mã nguồn (Checkout)
+        uses: actions/checkout@v3
+
+      - name: Cài đặt Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Cài đặt thư viện và Build Giao diện Web (Vite)
+        working-directory: ./client
+        run: |
+          npm install
+          npm run build
+
+      - name: Tích hợp Capacitor và Cấu trúc Android
+        working-directory: ./client
+        run: |
+          npm install @capacitor/core @capacitor/cli @capacitor/android
+          npx cap add android || echo "Thư mục android đã tồn tại"
+          npx cap sync android
+
+      - name: Cài đặt Java JDK 17 (Dành cho Android)
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Tiến hành Build ra file APK
+        working-directory: ./client/android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Đẩy file APK lên GitHub để tải về
+        uses: actions/upload-artifact@v3
+        with:
+          name: iStoreCard-App-APK
+          path: client/android/app/build/outputs/apk/debug/app-debug.apk
