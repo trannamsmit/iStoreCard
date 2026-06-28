@@ -61,24 +61,31 @@ jobs:
         working-directory: client
         run: npx cap add android
 
-      # ── 9. Sync web assets vào Android project ────────────────────
+      # ── 9. Generate icon từ resources/icon.png ────────────────────
+      - name: Generate app icon
+        working-directory: client
+        run: |
+          npm install @capacitor/assets --save-dev
+          npx capacitor-assets generate --android
+
+      # ── 10. Sync web assets vào Android project ───────────────────
       - name: Capacitor sync
         working-directory: client
         run: npx cap sync android
 
-      # ── 10. Tạo local.properties cho Android SDK ──────────────────
+      # ── 11. Tạo local.properties cho Android SDK ──────────────────
       - name: Create local.properties
         working-directory: client/android
         run: echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
 
-      # ── 11. Build APK Debug ────────────────────────────────────────
+      # ── 12. Build APK Debug ────────────────────────────────────────
       - name: Build APK (Debug)
         working-directory: client/android
         run: |
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
 
-      # ── 12. Upload APK artifact ────────────────────────────────────
+      # ── 13. Upload APK artifact ────────────────────────────────────
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
@@ -86,7 +93,7 @@ jobs:
           path: client/android/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 30
 
-      # ── 13. Hiển thị thông tin APK đã build ──────────────────────
+      # ── 14. Hiển thị thông tin APK đã build ──────────────────────
       - name: APK build summary
         run: |
           echo "✅ APK build thành công!"
